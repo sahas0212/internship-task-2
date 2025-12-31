@@ -1,0 +1,10 @@
+{
+  "name": "internship-task-2",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {},
+  "dependencies": {
+    "vite": "^7.3.0",
+    "nunjucks": "^3.2.4"
+  }
+}

@@ -1,42 +1,34 @@
 import nunjucks from "nunjucks";
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
 
-// helper to copy a folder recursively
-function copyFolderSync(from, to) {
-  if (!fs.existsSync(from)) return;
-  if (!fs.existsSync(to)) fs.mkdirSync(to, { recursive: true });
-
-  const entries = fs.readdirSync(from, { withFileTypes: true });
-  for (const entry of entries) {
-    const srcPath = path.join(from, entry.name);
-    const destPath = path.join(to, entry.name);
-    if (entry.isDirectory()) {
-      copyFolderSync(srcPath, destPath);
-    } else {
-      fs.copyFileSync(srcPath, destPath);
-    }
-  }
-}
-
-// configure nunjucks to read from src/templates
+// Configure nunjucks
 nunjucks.configure("src/templates", { autoescape: false });
 
-// render index.njk
-const output = nunjucks.render("index.njk");
+// Render template
+const htmlOutput = nunjucks.render("index.njk");
 
-// ensure dist exists
-if (!fs.existsSync("dist")) {
-  fs.mkdirSync("dist");
+// Ensure docs folder exists
+if (!fs.existsSync("docs")) {
+  fs.mkdirSync("docs");
 }
 
-// write compiled HTML
-fs.writeFileSync(path.join("dist", "index.html"), output, "utf8");
-console.log("✅ Nunjucks compiled to dist/index.html");
+// Write HTML
+fs.writeFileSync("docs/index.html", htmlOutput);
 
-// copy assets directory (src/assets -> dist/assets)
-const fromAssets = path.join("src", "assets");
-const toAssets = path.join("dist", "assets");
-copyFolderSync(fromAssets, toAssets);
-console.log("✅ Copied assets to dist/assets");
+// ---- COPY ASSETS ----
+const sourceAssets = "src/assets";
+const targetAssets = "docs/assets";
+
+if (!fs.existsSync(targetAssets)) {
+  fs.mkdirSync(targetAssets, { recursive: true });
+}
+
+fs.readdirSync(sourceAssets).forEach(file => {
+  fs.copyFileSync(
+    path.join(sourceAssets, file),
+    path.join(targetAssets, file)
+  );
+});
+
+console.log("Build complete: HTML + CSS copied to docs/");
